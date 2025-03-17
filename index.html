@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charter Certificate Creator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #certificate-img, #certificate-img * {
+                visibility: visible;
+            }
+            #certificate-img {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- 
+        Charter Certificate Creator
+        ---------------------------
+        This web app generates a certificate with a user's name on a template image.
+
+        Setup Instructions:
+        1. Save this file as 'index.html'.
+        2. Place 'certificate_template.png' (your certificate template image) in the same directory as this file.
+        3. Upload both files to a GitHub repository.
+        4. Open 'index.html' in a web browser (e.g., via GitHub Pages or locally).
+
+        Usage:
+        1. Enter your name in the input field and click "Generate Certificate".
+        2. View the certificate with your name displayed below.
+        3. Click "Print Certificate" to print it.
+
+        Notes:
+        - The name is placed at coordinates (x=840, y=971) with a 40px "Great Vibes" font.
+        - To use a custom font like "p22-zaner-pro-four", upload the font file (e.g., 'p22-zaner-pro-four.woff') to the repository and add the following CSS in the <style> tag:
+          @font-face {
+              font-family: 'p22-zaner-pro-four';
+              src: url('p22-zaner-pro-four.woff') format('woff');
+              font-weight: 800;
+              font-style: normal;
+          }
+          Then update the JavaScript line to: ctx.font = '40px "p22-zaner-pro-four"';
+    -->
+    <header class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-800">Charter Certificate Creator</h1>
+    </header>
+    <main class="w-full max-w-md">
+        <form id="name-form" class="bg-white p-6 rounded-lg shadow-md">
+            <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Enter your name:</label>
+            <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Generate Certificate</button>
+        </form>
+        <div id="certificate-container" class="mt-8 hidden">
+            <img id="certificate-img" alt="Certificate" class="max-w-full h-auto">
+            <button id="print-btn" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Print Certificate</button>
+        </div>
+    </main>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <script>
+        const form = document.getElementById('name-form');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const imgElement = document.getElementById('certificate-img');
+        const printBtn = document.getElementById('print-btn');
+        const certificateContainer = document.getElementById('certificate-container');
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            if (!name) return;
+
+            // Wait for fonts to load
+            await document.fonts.ready;
+
+            const img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                ctx.font = '40px "Great Vibes"';
+                ctx.fillStyle = 'black';
+                const x = 840;
+                const y = 971;
+                ctx.fillText(name, x, y);
+                const dataUrl = canvas.toDataURL('image/png');
+                imgElement.src = dataUrl;
+                certificateContainer.classList.remove('hidden');
+            };
+            img.src = 'certificate_template.png';
+        });
+
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    </script>
+</body>
+</html>
